@@ -1,5 +1,5 @@
-codegrade.py, a simple auto-grader
-==================================
+codegrade.py, a simple autograder
+=================================
 
 This is a simple, flexible way to run lots of student code submissions on lots of tests. It doesn't try to compute grades or anything else smart; it just checks whether a command's output equals the output from a reference implementation.
 
@@ -49,10 +49,10 @@ And optionally:
 After all the flags, provide the path to the directory that contains all the student submission directories. The archives that our infrastructure at Cornell gives us, for example, look like this:
 
     + Submissions
-      |-+ student1
-        |-- code.ml
-      |-+ student2
-        |-- code.ml
+    |-+ student1
+      |-- code.ml
+    |-+ student2
+      |-- code.ml
 
 and so on. So I provide the name of the `Submissions` directory here.
 
