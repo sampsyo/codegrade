@@ -187,13 +187,13 @@ def compare_output(sol_out, sub_res):
 @click.command()
 @click.option('--file', type=str, metavar='<name>', multiple=True,
               help='student submission filename')
-@click.option('--context', type=DIRECTORY, metavar='<dir>',
+@click.option('--context', type=DIRECTORY, metavar='<dir>', required=True,
               help='directory with scaffolding files')
 @click.option('--build', type=str, metavar='<cmd>', default='make',
               help='command to build submissions')
-@click.option('--tests', type=DIRECTORY, metavar='<dir>',
+@click.option('--tests', type=DIRECTORY, metavar='<dir>', required=True,
               help='directory of tests to run')
-@click.option('--test', type=str, metavar='<cmd>',
+@click.option('--test', type=str, metavar='<cmd>', required=True,
               help='command to run each test')
 @click.option('--solution', type=DIRECTORY, metavar='<dir>',
               help='pseudo-submission with correct solution')
