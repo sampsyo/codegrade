@@ -3,7 +3,11 @@ codegrade.py, a simple autograder
 
 This is a simple, flexible way to run lots of student code submissions on lots of tests. It doesn't try to compute grades or anything else smart; it just checks whether a command's output equals the output from a reference implementation.
 
-It's written for Python 3. The only dependency is [Click][], which you can install like this:
+It's written for Python 3. To install, I recommend cloning this repository and running something like this:
+
+    $ pip3 install --user -e .
+
+which will also get the only dependency, [Click][].
 
     $ pip3 install --user click
 
@@ -18,7 +22,7 @@ Using It
 Everything is controlled with command-line options. I usually make a little shell script that invokes `codegrade.py` with a litany of arguments---something like this:
 
     #!/bin/sh
-    python3 ../../codegrade/codegrade.py \
+    codegrade \
         --context code \
         --file submission.ml \
         --tests tests \
@@ -26,7 +30,7 @@ Everything is controlled with command-line options. I usually make a little shel
         --solution solution \
         --logs logs \
         --summary summary.csv \
-        $@ 
+        $@
 
 The rest of this section is about all those arguments. For a quick reference, you can type `python3 codegrade.py --help`.
 
