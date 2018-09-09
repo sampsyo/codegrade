@@ -210,7 +210,8 @@ def codegrade(submissions, file, context, build, test, tests, solution,
               logs, summary, timeout, single):
     # Load test filenames.
     test_paths = [os.path.abspath(os.path.join(tests, name))
-                  for name in sorted(os.listdir(tests))]
+                  for name in sorted(os.listdir(tests))
+                  if not name.startswith('.')]
 
     # Run the solution, if we have one.
     if solution:
