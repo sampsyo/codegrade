@@ -7,10 +7,6 @@ It's written for Python 3. To install, I recommend cloning this repository and r
 
     $ pip3 install --user -e .
 
-which will also get the only dependency, [Click][].
-
-    $ pip3 install --user click
-
 [click]: http://click.pocoo.org/5/
 
 Here's the general philosophy. `codegrade.py` works by making temporary directories, copying a bunch of files in there, building the code, running some tests, and emitting a log of successes and failures. You have *context* files, which are the scaffolding that every student's code gets graded in, and *submission* files, which students upload---both are combined together for building and execution. You also have a reference *solution*, which looks like a student submission but is guaranteed to be correct. Finally, you have a directory full of *test files*, which you run by executing some shell command for each file.
