@@ -8,11 +8,13 @@ import subprocess
 import signal
 import csv
 from collections import namedtuple
+from enum import Enum
 
 DIRECTORY = click.Path(file_okay=False, exists=True)
-TIMEOUT = b'<timeout>'
 
-Result = namedtuple('Result', ['test_output', 'build_output', 'build_error'])
+Status = Enum('Status', ['SUCCESS', 'ERROR', 'TIMEOUT'])
+Result = namedtuple('Result', ['test_status', 'test_output', 'build_output',
+                               'build_error'])
 
 
 def copy_all(src_dir, dest_dir):
@@ -80,7 +82,7 @@ def run_tests(submission_path, submission_names, context_dir, build_cmd,
                 if not os.path.exists(src_path):
                     msg = 'missing: {}'.format(sub_name) \
                         .encode('utf8', 'ignore')
-                    return Result({}, msg, 1)
+                    return Result({}, {}, msg, 1)
                 shutil.copy(src_path, work_dir)
         else:
             # Copy everything.
@@ -92,10 +94,11 @@ def run_tests(submission_path, submission_names, context_dir, build_cmd,
                 build_output = call(build_cmd, shell=True, cwd=work_dir)
             except subprocess.CalledProcessError as exc:
                 print('build failed')
-                return Result({}, exc.output, exc.returncode)
+                return Result({}, {}, exc.output, exc.returncode)
 
         # Run the tests.
         test_output = {}
+        test_status = {}
         if test_paths:
             # Run one test per file. The command gets the test filename
             # as an argument.
@@ -109,9 +112,12 @@ def run_tests(submission_path, submission_names, context_dir, build_cmd,
                     )
                 except subprocess.CalledProcessError:
                     print('test {} failed'.format(name))
+                    test_status[test_path] = Status.ERROR
                 except subprocess.TimeoutExpired:
                     print('test {} timed out'.format(name))
-                    test_output[test_path] = TIMEOUT
+                    test_status[test_path] = Status.TIMEOUT
+                else:
+                    test_status[test_path] = Status.SUCCESS
 
         else:
             # Run a single test command.
@@ -121,16 +127,19 @@ def run_tests(submission_path, submission_names, context_dir, build_cmd,
                 )
             except subprocess.CalledProcessError:
                 print('test failed')
+                test_status['-'] = Status.ERROR
             except subprocess.TimeoutExpired:
                 print('test timed out')
-                test_output['-'] = TIMEOUT
+                test_status['-'] = Status.TIMEOUT
+            else:
+                test_status['-'] = Status.SUCCESS
 
-    return Result(test_output, build_output, 0)
+    return Result(test_status, test_output, build_output, 0)
 
 
-def compare_output(sol_out, sub_res):
-    """Compare the test results (a Result object) for a submission with
-    the ground-truth results (a filename/output mapping).
+def compare_output(sol_res, sub_res):
+    """Compare the test results and ground-truth results (both Result
+    objects).
 
     Return two things:
     - A mapping from test paths to single-letter strings indicating the
@@ -145,24 +154,27 @@ def compare_output(sol_out, sub_res):
     # Check for build failure.
     if sub_res.build_error:
         log += ['build failed']
-        results = {k: 'E' for k in sol_out}
+        results = {k: 'E' for k in sol_res.test_status}
         return results, '\n'.join(log)
 
     log.append('== tests ==')
 
+    # Analyze each test that succeeded in the solution.
     results = {}
     correct = 0
-    for test_path in sol_out:
+    for test_path in [k for (k, v) in sol_res.test_status.items()
+                      if v == Status.SUCCESS]:
         name = os.path.basename(test_path)
+        status = sub_res.test_status[test_path]
 
-        if test_path in sub_res.test_output:
-            sol = sol_out[test_path]
+        if status == Status.TIMEOUT:
+            results[test_path] = 'T'
+            log.append('{}: timed out'.format(name))
+
+        elif status == Status.SUCCESS:
+            sol = sol_res.test_output[test_path]
             sub = sub_res.test_output[test_path]
-            if sub == TIMEOUT:
-                results[test_path] = 'T'
-                log.append('{}: timed out'.format(name))
-
-            elif sol == sub:
+            if sol == sub:
                 results[test_path] = 'P'
                 correct += 1
 
@@ -182,7 +194,7 @@ def compare_output(sol_out, sub_res):
             log.append('{}: test execution failed'.format(name))
 
     log.append('')
-    log.append('{}/{}'.format(correct, len(sol_out)))
+    log.append('{}/{}'.format(correct, len(sol_res.test_status)))
 
     return results, '\n'.join(log)
 
@@ -250,7 +262,7 @@ def codegrade(submissions, file, context, build, test, tests, solution,
 
         # Compare outputs to the solution.
         if solution:
-            results, log = compare_output(sol_res.test_output, sub_res)
+            results, log = compare_output(sol_res, sub_res)
 
             # Write the summary row.
             if summary:
