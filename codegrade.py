@@ -139,13 +139,16 @@ def compare_output(sol_out, sub_res):
     """
 
     log = ['== build log ==',
-           sub_res.build_output.decode('utf8', 'ignore').strip()]
+           sub_res.build_output.decode('utf8', 'ignore').strip(),
+           '']
 
     # Check for build failure.
     if sub_res.build_error:
         log += ['build failed']
         results = {k: 'E' for k in sol_out}
         return results, '\n'.join(log)
+
+    log.append('== tests ==')
 
     results = {}
     correct = 0
