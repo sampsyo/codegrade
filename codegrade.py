@@ -110,9 +110,10 @@ def run_tests(submission_path, submission_names, context_dir, build_cmd,
                         ['sh', '-c', test_cmd, test_path],
                         timeout=timeout, cwd=work_dir,
                     )
-                except subprocess.CalledProcessError:
+                except subprocess.CalledProcessError as exc:
                     print('test {} failed'.format(name))
                     test_status[test_path] = Status.ERROR
+                    test_output[test_path] = exc.output
                 except subprocess.TimeoutExpired:
                     print('test {} timed out'.format(name))
                     test_status[test_path] = Status.TIMEOUT
@@ -125,9 +126,10 @@ def run_tests(submission_path, submission_names, context_dir, build_cmd,
                 test_output['-'] = call(
                     test_cmd, shell=True, timeout=timeout, cwd=work_dir
                 )
-            except subprocess.CalledProcessError:
+            except subprocess.CalledProcessError as exc:
                 print('test failed')
                 test_status['-'] = Status.ERROR
+                test_output['-'] = exc.output
             except subprocess.TimeoutExpired:
                 print('test timed out')
                 test_status['-'] = Status.TIMEOUT
@@ -191,7 +193,12 @@ def compare_output(sol_res, sub_res):
 
         else:
             results[test_path] = 'E'
-            log.append('{}: test execution failed'.format(name))
+
+            sub_s = sub_res.test_output[test_path] \
+                .decode('utf8', 'ignore').strip()
+            log.append('')
+            log.append('=== {} (command failed) ==='.format(name))
+            log.append(sub_s)
 
     log.append('')
     log.append('{}/{}'.format(correct, len(sol_res.test_status)))
