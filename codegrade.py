@@ -197,7 +197,7 @@ def compare_output(sol_res, sub_res):
             sub_s = sub_res.test_output[test_path] \
                 .decode('utf8', 'ignore').strip()
             log.append('')
-            log.append('=== {} (command failed) ==='.format(name))
+            log.append('=== {} (command exited with error) ==='.format(name))
             log.append(sub_s)
 
     log.append('')
