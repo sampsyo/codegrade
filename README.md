@@ -34,7 +34,7 @@ The rest of this section is about all those arguments. For a quick reference, yo
 
 First things first. You will need:
 
-* `--context DIR`: Your *context* directory contains the scaffolding code that all students (and your solution) have in common. This is probably the starter code you handed out to the students for the assignment.
+* `--context DIR`: Your *context* directory contains the scaffolding code that all students (and your solution) have in common. This is probably the starter code you handed out to the students for the assignment. You can provide multiple context directories; their contents will be merged in the order you specify them. Using a second context directory, you can override the given files with a modification to facilitate easier grading.
 * `--tests DIR`: A directory containing *test files*. Each one should somehow represent a different input.
 * `--test CMD`: A shell command for running a single test. The command gets passed the filename for the test, so you can use `$0` to refer to it. You'll definitely want to shell-escape the command string to avoid interpolation. For example, `--test './prog $0'` just says "run the built executable `prog` on every given test file."
 * `--solution DIR`: A directory containing submission files with known-good, correct code. The program will use the output from this implementation as the reference output, so anything that differs from it will be "wrong."

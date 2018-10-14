@@ -59,7 +59,7 @@ def call(args, shell=False, cwd=None, timeout=None):
     return stdout
 
 
-def run_tests(submission_path, submission_names, context_dir, build_cmd,
+def run_tests(submission_path, submission_names, context_dirs, build_cmd,
               test_cmd, test_paths, timeout):
     """Run all the grading tests for a specific submission. Return a
     Result object.
@@ -71,7 +71,7 @@ def run_tests(submission_path, submission_names, context_dir, build_cmd,
     # Copy files into a temporary directory.
     with tempfile.TemporaryDirectory() as work_dir:
         # Include the context.
-        if context_dir:
+        for context_dir in context_dirs:
             copy_all(context_dir, work_dir)
 
         # Include the student submission files.
@@ -210,7 +210,7 @@ def compare_output(sol_res, sub_res):
 @click.option('--file', type=str, metavar='<name>', multiple=True,
               help='student submission filename')
 @click.option('--context', type=DIRECTORY, metavar='<dir>', required=True,
-              help='directory with scaffolding files')
+              multiple=True, help='directory with scaffolding files')
 @click.option('--build', type=str, metavar='<cmd>', default='make',
               help='command to build submissions')
 @click.option('--tests', type=DIRECTORY, metavar='<dir>', required=True,
