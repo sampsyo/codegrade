@@ -254,7 +254,7 @@ def codegrade(submissions, file, context, build, test, tests, solution,
     # Just grading one submission, or get the submissions by listing the
     # directory?
     if single:
-        sub_dirs = [submissions]
+        sub_dirs = [os.path.normpath(submissions)]
     else:
         sub_dirs = [os.path.join(submissions, d)
                     for d in os.listdir(submissions)]
